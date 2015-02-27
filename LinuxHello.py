@@ -11,9 +11,10 @@ output = []
 
 ser = serial.Serial('/dev/ttyUSB0', 115200, timeout = 5, )
 print ser.name
-for a in range(25):
+for a in range(10):
     ser.write(Start_Scan)
     s = ser.read(7)
-    print s.encode("hex")
+    output.append(s)
     
-
+for a in output:
+    print a.encode("hex")
