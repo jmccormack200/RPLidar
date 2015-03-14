@@ -44,7 +44,7 @@ def getPoints(port):
     line = ""
     a = 0
     global q
-    while True
+    while True:
         try:
             character = port.read()
             line += character
@@ -92,8 +92,16 @@ def point_XY(serial_frame):
     return (x,y)
 
 def graph():
+    global q    
+    while True:
+        try:
+            point_xy = q.get()
+            print point_xy
+        except KeyboardInterrupt:
+            break
+    """
     fig = plt.figure()
-    fig.add_subplot(111)
+    ax = fig.add_subplot(111)
     x = np.arange(10000)
     y = np.arange(10000)
     li,= ax.plot(x,y)
@@ -101,23 +109,24 @@ def graph():
     plt.show(block=False)
     
     global q
-        while (True):
-            try:
-                if (not (q.empty())):
-                    point_xy = q.get()
-                    self.li.set_ydata(point_xy[1])
-                    self.li.set_xdata(point_xy[0])
-                    self.fig.canvas.draw()
-                    time.sleep(0.05)
-            except KeyboardInterrupt:
-                print "Sorry to see you go"
-                break
+    while True:
+        try:
+            if (not (q.empty())):
+                point_xy = q.get()
+                self.li.set_ydata(point_xy[1])
+                self.li.set_xdata(point_xy[0])
+                self.fig.canvas.draw()
+                time.sleep(0.05)
+        except KeyboardInterrupt:
+            print "Sorry to see you go"
+            break
+    """
     
 if __name__ == "__main__":
-    output = []
+    
+    q = Queue.Queue(0)
 
-
-    ser = serial.Serial(10, 115200, timeout = 5, )
+    ser = serial.Serial(10, 115200, timeout = 5)
     ser.setDTR(False)
     print ser.name
     ser.write(RESET)
@@ -126,6 +135,8 @@ if __name__ == "__main__":
     
     thread1 = threading.Thread(target=getResponseDescriptor, args=(ser))
     thread2 = threading.Thread(target=graph, args=())
+    thread1.start()
+    thread2.start()
 
     #getResponseDescriptor(ser)
         
