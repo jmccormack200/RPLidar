@@ -3,6 +3,14 @@ import time
 import math
 from time import sleep
 
+import threading, random
+import matplotlib.pyplot as plt
+import numpy as np
+import time
+try:
+    import Queue
+except:
+    import queue as Queue
 
 
 Start_Scan = "\xA5\x20"
@@ -34,8 +42,8 @@ def getResponseDescriptor(port):
 
 def getPoints(port):
     line = ""
-    testoutput = []
     a = 0
+    global q
     while True
         try:
             character = port.read()
@@ -45,10 +53,9 @@ def getPoints(port):
                 #print point_Polar(line)
                 #line = line.encode("hex")
                 #print line
-                testoutput.append(point_XY(line))
+                q.put(point_XY(line))
                 line = ""
-                a += 1
-
+                
         except KeyboardInterrupt:
             break
     
@@ -84,8 +91,27 @@ def point_XY(serial_frame):
     y = distance * math.sin(angle)
     return (x,y)
 
-def graph(output):
-    pass
+def graph():
+    fig = plt.figure()
+    fig.add_subplot(111)
+    x = np.arange(10000)
+    y = np.arange(10000)
+    li,= ax.plot(x,y)
+    fig.canvas.draw()
+    plt.show(block=False)
+    
+    global q
+        while (True):
+            try:
+                if (not (q.empty())):
+                    point_xy = q.get()
+                    self.li.set_ydata(point_xy[1])
+                    self.li.set_xdata(point_xy[0])
+                    self.fig.canvas.draw()
+                    time.sleep(0.05)
+            except KeyboardInterrupt:
+                print "Sorry to see you go"
+                break
     
 if __name__ == "__main__":
     output = []
@@ -97,6 +123,9 @@ if __name__ == "__main__":
     ser.write(RESET)
     sleep(4)
     ser.write(Start_Scan)
+    
+    thread1 = threading.Thread(target=getResponseDescriptor, args=(ser))
+    thread2 = threading.Thread(target=graph, args=())
 
-    getResponseDescriptor(ser)
+    #getResponseDescriptor(ser)
         

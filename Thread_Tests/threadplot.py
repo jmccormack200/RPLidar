@@ -26,7 +26,6 @@ class Producer:
                 self.y[-10:] = np.random.randn(10)
                 q.put(self.y)
             except KeyboardInterrupt:
-                print "Sorry to see you go"
                 break
 
 class Plotter:
