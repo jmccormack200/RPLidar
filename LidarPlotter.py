@@ -20,16 +20,24 @@ Stop_Scan = "\xA5\x25"
 RESET = "\xA5\x40"
 
 def getResponseDescriptor(port):
-    print "1"
     line = ""
+    lock = False
+    port.write(RESET)
+    sleep(4)
+    port.write(Start_Scan)
     while True:
         try:
             character = port.read()
             line += character
             if (line[0:2] == "\xa5\x5a"):
+                print "yes"
                 if(len(line) == 7):
+                    lock = True
+                    print line.encode("hex")
                     break
-            elif (line[0] != "\xa5"):
+                
+            elif (line[0:2] != "\xa5\x5a" and len(line) == 2):
+                print line.encode("hex")
                 line = ""
         except KeyboardInterrupt:
             break
@@ -37,11 +45,13 @@ def getResponseDescriptor(port):
             pass
     print (line.encode("hex"))
     #getPoints(port)
-    thread1 = threading.Thread(target=getPoints, args=(port,))
-    thread2 = threading.Thread(target=graph, args=())
-    thread1.start()
-    thread2.start()
-    
+    if lock == True:
+        thread1 = threading.Thread(target=getPoints, args=(port,))
+        thread2 = threading.Thread(target=graph, args=())
+        thread1.start()
+        thread2.start()
+    else:
+        print "Exiting"
 
 def getPoints(port):
     line = ""
@@ -53,7 +63,7 @@ def getPoints(port):
             line += character
             
             if (len(line) == 5):
-                q.put(point_XY(line))
+                q.put(point_Polar(line))
                 line = ""
                 
         except KeyboardInterrupt:
@@ -92,40 +102,25 @@ def point_XY(serial_frame):
     return (x,y)
 
 def graph():
+    
+    plt.ion()
+    plt.show()
+    
+    
     global q    
     while True:
         try:
             if (not (q.empty())):
                 point = q.get()
                 print point
-                print "\n"
+                plt.scatter(point[1], point[0])
+                plt.draw()
                 
         except KeyboardInterrupt:
             print "Sorry to see you go"
             break 
-"""
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    x = np.arange(10000)
-    y = np.arange(10000)
-    li,= ax.plot(x,y)
-    fig.canvas.draw()
-    plt.show(block=False)
-    
-    global q
-    while True:
-        try:
-            if (not (q.empty())):
-                point_xy = q.get()
-                self.li.set_ydata(point_xy[1])
-                self.li.set_xdata(point_xy[0])
-                self.fig.canvas.draw()
-                time.sleep(0.05)
-        except KeyboardInterrupt:
-            print "Sorry to see you go"
-            break
-    """
-    
+            
+            
 if __name__ == "__main__":
     
     q = Queue.Queue(0)
@@ -133,10 +128,6 @@ if __name__ == "__main__":
     ser = serial.Serial(10, 115200, timeout = 5)
     ser.setDTR(False)
     print ser.name
-    
-    ser.write(RESET)
-    sleep(4)
-    ser.write(Start_Scan)
     getResponseDescriptor(ser)
     
     #thread1 = threading.Thread(target=getPoints, args=(ser,))
