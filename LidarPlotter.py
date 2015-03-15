@@ -20,25 +20,28 @@ Stop_Scan = "\xA5\x25"
 RESET = "\xA5\x40"
 
 def getResponseDescriptor(port):
+    print "1"
     line = ""
-    
     while True:
         try:
             character = port.read()
             line += character
-            
             if (line[0:2] == "\xa5\x5a"):
                 if(len(line) == 7):
-                    print (line.encode("hex"))
-                    getPoints(port)
-                    line = ""
-                    
+                    break
             elif (line[0] != "\xa5"):
                 line = ""
         except KeyboardInterrupt:
             break
         except:
             pass
+    print (line.encode("hex"))
+    #getPoints(port)
+    thread1 = threading.Thread(target=getPoints, args=(port,))
+    thread2 = threading.Thread(target=graph, args=())
+    thread1.start()
+    thread2.start()
+    
 
 def getPoints(port):
     line = ""
@@ -50,9 +53,6 @@ def getPoints(port):
             line += character
             
             if (len(line) == 5):
-                #print point_Polar(line)
-                #line = line.encode("hex")
-                #print line
                 q.put(point_XY(line))
                 line = ""
                 
@@ -95,11 +95,15 @@ def graph():
     global q    
     while True:
         try:
-            point_xy = q.get()
-            print point_xy
+            if (not (q.empty())):
+                point = q.get()
+                print point
+                print "\n"
+                
         except KeyboardInterrupt:
-            break
-    """
+            print "Sorry to see you go"
+            break 
+"""
     fig = plt.figure()
     ax = fig.add_subplot(111)
     x = np.arange(10000)
@@ -129,14 +133,17 @@ if __name__ == "__main__":
     ser = serial.Serial(10, 115200, timeout = 5)
     ser.setDTR(False)
     print ser.name
+    
     ser.write(RESET)
     sleep(4)
     ser.write(Start_Scan)
+    getResponseDescriptor(ser)
     
-    thread1 = threading.Thread(target=getResponseDescriptor, args=(ser))
-    thread2 = threading.Thread(target=graph, args=())
-    thread1.start()
-    thread2.start()
+    #thread1 = threading.Thread(target=getPoints, args=(ser,))
+    #thread2 = threading.Thread(target=graph, args=())
+    #thread1.start()
+    #thread2.start()
 
-    #getResponseDescriptor(ser)
+    
         
+#C:\Users\johnmccormack2307\Lidar
