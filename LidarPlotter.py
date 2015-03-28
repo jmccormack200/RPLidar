@@ -30,7 +30,6 @@ def getResponseDescriptor(port):
             character = port.read()
             line += character
             if (line[0:2] == "\xa5\x5a"):
-                print "yes"
                 if(len(line) == 7):
                     lock = True
                     print line.encode("hex")
@@ -85,9 +84,10 @@ def point_Polar(serial_frame):
     angle = serial_frame[2].encode("hex") + serial_frame[1].encode("hex")
     angle = leftshiftbits(angle) #remove check bit, convert to integer
     angle = angle/64 #instruction from data sheet
-
+    #theta = (angle * np.pi) / 180 #uncomment to use radians
     
-    return(distance,angle)
+    #return(distance,theta) #uncomment to return radians
+    return(distance, angle)
     
 def point_XY(serial_frame):
     circular_coordinates = point_Polar(serial_frame)
@@ -102,7 +102,8 @@ def point_XY(serial_frame):
     return (x,y)
 
 def graph():
-    
+    fig = plt.figure()
+    ax = fig.add_subplot(111, polar=True)
     plt.ion()
     plt.show()
     
@@ -113,9 +114,9 @@ def graph():
             if (not (q.empty())):
                 point = q.get()
                 print point
-                plt.scatter(point[1], point[0])
-                plt.draw()
-                
+                #plt.scatter(point[1], point[0])
+                #plt.draw()
+                #sleep(0.5)
         except KeyboardInterrupt:
             print "Sorry to see you go"
             break 
