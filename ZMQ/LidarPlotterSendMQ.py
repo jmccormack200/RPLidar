@@ -2,8 +2,10 @@ import serial
 import time
 import math
 from time import sleep
-import threading, random
-import numpy as np
+import threading, random,sys
+import numpy as np 
+import zmq
+
 try:
     import Queue
 except:
@@ -20,7 +22,7 @@ def getResponseDescriptor(port):
     line = ""
     lock = False
     port.write(RESET)
-    sleep(4)
+    sleep(2)
     port.write(Start_Scan)
     while True:
         try:
@@ -29,7 +31,7 @@ def getResponseDescriptor(port):
             if (line[0:2] == "\xa5\x5a"):
                 if(len(line) == 7):
                     lock = True
-                    print line.encode("hex")
+                    #print line.encode("hex")
                     break
                 
             elif (line[0:2] != "\xa5\x5a" and len(line) == 2):
@@ -40,31 +42,43 @@ def getResponseDescriptor(port):
         except:
             pass
     print (line.encode("hex"))
-    #getPoints(port)
     if lock == True:
-        print "Made it here"
-        thread1 = threading.Thread(target=getPoints, args=(port,))
-        thread2 = threading.Thread(target=graph, args=())
-        thread1.start()
-        thread2.start()
+        getPoints(port)
     else:
         print "Exiting"
 
 def getPoints(port):
+    print "PLEASE WORK"
+    send_port = "5556"
+    context = zmq.Context()
+    socket = context.socket(zmq.PAIR)
+    socket.bind("tcp://*:%s" % send_port)
+
     line = ""
     a = 0
-    global q
+
     while True:
+
+
         try:
             character = port.read()
             line += character
             
             if (len(line) == 5):
-                q.put(point_Polar(line))
+                #socket.send("Server message to client")
+                #msg = socket.recv()
+                #print msg
+                #time.sleep(1)
+                point = point_Polar(line)
+                socket.send(str(point)) 
+                #msg = socket.recv()
+                #print msg 
                 line = ""
                 
         except KeyboardInterrupt:
             break
+
+
     
 def leftshiftbits(line):
     line = int(line, 16)
@@ -99,21 +113,8 @@ def point_XY(serial_frame):
     y = distance * math.sin(angle)
     return (x,y)
 
-def graph():     
-    global q    
-    while True:
-        try:
-            if (not (q.empty())):
-                point = q.get()
-                print point
-        except KeyboardInterrupt:
-            print "Sorry to see you go"
-            break
-            
-if __name__ == "__main__":
-    
-    q = Queue.Queue(0)
 
+if __name__ == "__main__":
     ser = serial.Serial(3, 115200, timeout = 5)
     ser.setDTR(False)
     print ser.name
