@@ -4,7 +4,7 @@ import math
 from time import sleep
 import threading, random,sys
 import numpy as np 
-import socket
+import SocketServer
 import json
 
 try:
@@ -50,9 +50,6 @@ def getResponseDescriptor(port):
 
 def getPoints(port):
     print "PLEASE WORK"
-    #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #s.connect(('127.0.0.1', 13373))
-
     line = ""
     a = 0
 
