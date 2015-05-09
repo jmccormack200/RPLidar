@@ -8,5 +8,7 @@ print "UDP target IP: ", UDP_IP
 print "UDP target Port: ", UDP_PORT
 print "message: ", MESSAGE
 
-sock = socket.socket(socekt.AF_INET, socket.SOCK_DGRAM)
-sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
+for a in range(0, 1000)
+	MESSAGE_SENT = MESSAGE + str(a)
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	sock.sendto(MESSAGE_SENT, (UDP_IP, UDP_PORT))
