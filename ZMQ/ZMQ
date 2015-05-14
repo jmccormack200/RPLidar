@@ -4,7 +4,8 @@ import math
 from time import sleep
 import threading, random,sys
 import numpy as np 
-import zmq
+import socket
+import json
 
 try:
     import Queue
@@ -41,10 +42,7 @@ def getResponseDescriptor(port):
             break
         except:
             pass
-    print "Check One two"
     print (line.encode("hex"))
-    print "Check three four"
-    getPoints(port)
     if lock == True:
         getPoints(port)
     else:
@@ -52,39 +50,33 @@ def getResponseDescriptor(port):
 
 def getPoints(port):
     print "PLEASE WORK"
-    send_port = "5556"
-    context = zmq.Context()
-    socket = context.socket(zmq.PAIR)
-    socket.bind("tcp://*:%s" % send_port)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect(('127.0.0.1', 13373))
 
     line = ""
     a = 0
 
     while True:
 
-        '''
+
         try:
             character = port.read()
             line += character
             
             if (len(line) == 5):
-                socket.send("Server message to client")
-                msg = socket.recv()
-                print msg
-                time.sleep(1)
-                #point = point_Polar(line)
-                #socket.send(str(point)) 
-                #msg = socket.recv()
-                #print msg 
+
+                point = point_Polar(line)
+                data = {'length': point[0], 'angle': point[1]}
+                s.send(json.dumps(data))
+                result = json.loads(s.recv(1024))
+
+
                 line = ""
                 
         except KeyboardInterrupt:
             break
-        '''
-        socket.send("Server message to client")
-        msg = socket.recv()
-        print msg
-        time.sleep(1)
+            s.close()
+
 
     
 def leftshiftbits(line):

@@ -23,35 +23,40 @@ RESET = "\xA5\x40"
 class Lidar():
     def __init__(self,port):
         self.port = port
-        line = ""
         lock = False
-        port.write(RESET)
-        sleep(2)
-        port.write(Start_Scan)
-        while True:
-            try:
-                character = port.read()
-                line += character
-                if (line[0:2] == "\xa5\x5a"):
-                    if(len(line) == 7):
-                        lock = True
-                        #print line.encode("hex")
-                        break
-                    
-                elif (line[0:2] != "\xa5\x5a" and len(line) == 2):
-                    print line.encode("hex")
-                    line = ""
-            except KeyboardInterrupt:
-                break
-            except:
-                pass
-        print (line.encode("hex"))
+
+        lock = self.startScan(self.port)
+
         if lock == True:
-            getPoints(port)
+            self.getPoints(self.port)
         else:
             print "Exiting"
 
-    def getPoints(port):
+    def startScan(self, port):
+        print "Connecting"
+        line = ""
+        lock = False
+        while lock == False:
+            print "..."
+            port.write(RESET)
+            sleep(2)
+            port.write(Start_Scan)
+            try:
+                for a in range(0, 250):
+                    character = port.read()
+                    line += character
+                    if (line[0:2] == "\xa5\x5a"):
+                        if(len(line) == 7):
+                            lock = True
+                            break
+                        
+                    elif (line[0:2] != "\xa5\x5a" and len(line) == 2):
+                        line = ""
+            except KeyboardInterrupt:
+                break
+        return lock
+
+    def getPoints(self,port):
 
         UDP_IP = "127.0.0.1"
         UDP_PORT = 5005
@@ -73,7 +78,7 @@ class Lidar():
 
                 
                 if (len(line) == 5):
-                    point = str(point_Polar(line))
+                    point = str(self.point_Polar(line))
                     sock.sendto(point, (UDP_IP, UDP_PORT))
                     line = ""
                     
@@ -82,28 +87,28 @@ class Lidar():
 
 
         
-    def leftshiftbits(line):
+    def leftshiftbits(self,line):
         line = int(line, 16)
         line = bin(line)
         line = line[:2] + "0" + line[2:-1]
         line = int(line, 2) #convert to integer
         return line
         
-    def point_Polar(serial_frame):
+    def point_Polar(self,serial_frame):
         #Get Distance
         distance = serial_frame[4].encode("hex") + serial_frame[3].encode("hex")
         distance = int(distance, 16)
         distance = distance / 4 #instructions from data sheet
         #Get Angle
         angle = serial_frame[2].encode("hex") + serial_frame[1].encode("hex")
-        angle = leftshiftbits(angle) #remove check bit, convert to integer
+        angle = self.leftshiftbits(angle) #remove check bit, convert to integer
         angle = angle/64 #instruction from data sheet
         #theta = (angle * np.pi) / 180 #uncomment to use radians
         
         #return(distance,theta) #uncomment to return radians
         return(distance, angle)
         
-    def point_XY(serial_frame):
+    def point_XY(self,serial_frame):
         circular_coordinates = point_Polar(serial_frame)
         distance = circular_coordinates[0]
         angle = circular_coordinates[1]
