@@ -60,7 +60,6 @@ class Lidar():
         print "UDP target IP: ", UDP_IP
         print "UDP target Port: ", UDP_PORT
 
-        print "PLEASE WORK"
         line = ""
         a = 0
         line_array = []
