@@ -150,6 +150,7 @@ class Lidar():
                     #Switches based on desired output
                     if polar == True:
                         point = str((self.id, self.point_Polar(line)))
+                        print point
                     else:
                         point = str((self.id, self.point_XY(line)))
 
