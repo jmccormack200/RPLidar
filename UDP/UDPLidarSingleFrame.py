@@ -209,10 +209,10 @@ class Lidar():
         if radians == True:
             theta = (angle * np.pi) / 180 #uncomment to use radians
         
-            return(distance,theta) #uncomment to return radians
+            return(theta,distance) #uncomment to return radians
 
         else:
-            return(distance, angle)
+            return(angle, distance)
 ###############################
 #
 # point XY
@@ -226,8 +226,8 @@ class Lidar():
 ################################        
     def point_XY(self,serial_frame):
         circular_coordinates = point_Polar(serial_frame)
-        distance = circular_coordinates[0]
-        angle = circular_coordinates[1]
+        distance = circular_coordinates[1]
+        angle = circular_coordinates[0]
         
         #Get X
         x = distance * math.cos(angle)
