@@ -61,15 +61,18 @@ class Lidar():
         #lock checks if the connection is made
         lock = False 
 
-        #Begin by starting the scan
-        lock = self.startScan(self.port)
+        while(True):
+            try:
+                #Begin by starting the scan
+                lock = self.startScan(self.port)
 
-        #Once scan is started, beging printing data
-        if lock == True:
-            self.getPoints(self.port)
-        else:
-            print "Exiting"
-
+                #Once scan is started, beging printing data
+                if lock == True:
+                    self.getPoints(self.port)
+                else:
+                    print "Exiting"
+            except KeyboardInterrupt:
+                break
 ###############################
 #
 #  Start Scan
@@ -149,12 +152,15 @@ class Lidar():
                 if (len(line) == 5):
                     #Switches based on desired output
                     if polar == True:
-                        point = str((self.id, self.point_Polar(line)))
-                        print point
+                        point = self.point_Polar(line)
+                        packet = str((self.id, point))
+                        if (point[1] >= 10000):
+                            break
+                        #print packet
                     else:
-                        point = str((self.id, self.point_XY(line)))
+                        packet = str((self.id, self.point_XY(line)))
 
-                    sock.sendto(point, (UDP_IP, UDP_PORT))
+                    sock.sendto(packet, (UDP_IP, UDP_PORT))
                     line = ""
                     
             except KeyboardInterrupt:
@@ -225,7 +231,7 @@ class Lidar():
 #
 ################################        
     def point_XY(self,serial_frame):
-        circular_coordinates = point_Polar(serial_frame)
+        circular_coordinates = self.point_Polar(serial_frame)
         distance = circular_coordinates[1]
         angle = circular_coordinates[0]
         
