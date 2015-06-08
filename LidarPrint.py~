@@ -224,7 +224,7 @@ class Lidar():
 if __name__ == "__main__":
     #COM4 was used on my computer, this will change based on
     #your setup and whether you're on Windows/Mac/Linux
-    port = 20
+    port = 3
     ser = serial.Serial(port, 115200, timeout = 5)
     ser.setDTR(False)
     print ser.name

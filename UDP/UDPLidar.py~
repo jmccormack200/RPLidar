@@ -1,12 +1,15 @@
 import serial
+import time
 import math
 from time import sleep
-import threading
+import threading, random,sys
 import numpy as np 
+import requests,json
+import socket
 
 ###############################
 #
-#  Lidar Print
+#  UDPLidar
 #
 #  By: John McCormack
 #  www.jdmccormack.com
@@ -14,8 +17,14 @@ import numpy as np
 #  A simple class for interfacing to the 
 #  Robopeak RPLidar using Python.
 #  
-#  Built for Windows, one line needs to be
-#  changed for mac or linux
+#  Built for Windows, sends data out over
+#  a UDP stream. 
+#
+#  For this to work, you need either a
+#  valid cross domain xml file or to 
+#  use the built in Unity SocketPolicyServer
+#  found in C:\Program Files\Unity\Editor
+#             \Data\Tools
 #  
 #
 ################################
@@ -45,22 +54,25 @@ RESET = "\xA5\x40" #Resets the device
 ################################
 class Lidar():
 
-    def __init__(self,port):
+    def __init__(self,port,id=1):
         #set the port as an instance variable
-
+        self.id = id
         self.port = port
         #lock checks if the connection is made
         lock = False 
 
-        #Begin by starting the scan
-        lock = self.startScan(self.port)
+        while(True):
+            try:
+                #Begin by starting the scan
+                lock = self.startScan(self.port)
 
-        #Once scan is started, beging printing data
-        if lock == True:
-            self.getPoints(self.port)
-        else:
-            print "Exiting"
-
+                #Once scan is started, beging printing data
+                if lock == True:
+                    self.getPoints(self.port)
+                else:
+                    print "Exiting"
+            except KeyboardInterrupt:
+                break
 ###############################
 #
 #  Start Scan
@@ -125,8 +137,13 @@ class Lidar():
 ################################
 
     def getPoints(self,port,polar=True):
+    	UDP_IP = "127.0.0.1"
+        UDP_PORT = 8051
 
         line = ""
+        print("Transmitting on : " + str(UDP_IP) + ":" + str(UDP_PORT))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
         while True:
             try:
                 character = port.read()
@@ -135,10 +152,15 @@ class Lidar():
                 if (len(line) == 5):
                     #Switches based on desired output
                     if polar == True:
-                        point = str(self.point_Polar(line))
+                        point = self.point_Polar(line)
+                        packet = str((self.id, point))
+                        if (point[1] >= 10000):
+                            break
+                        #print packet
                     else:
-                        point = str(self.point_XY(line))
-                    print point
+                        packet = str((self.id, self.point_XY(line)))
+
+                    sock.sendto(packet, (UDP_IP, UDP_PORT))
                     line = ""
                     
             except KeyboardInterrupt:
@@ -193,10 +215,10 @@ class Lidar():
         if radians == True:
             theta = (angle * np.pi) / 180 #uncomment to use radians
         
-            return(distance,theta) #uncomment to return radians
+            return(theta,distance) #uncomment to return radians
 
         else:
-            return(distance, angle)
+            return(angle, distance)
 ###############################
 #
 # point XY
@@ -209,9 +231,9 @@ class Lidar():
 #
 ################################        
     def point_XY(self,serial_frame):
-        circular_coordinates = point_Polar(serial_frame)
-        distance = circular_coordinates[0]
-        angle = circular_coordinates[1]
+        circular_coordinates = self.point_Polar(serial_frame)
+        distance = circular_coordinates[1]
+        angle = circular_coordinates[0]
         
         #Get X
         x = distance * math.cos(angle)
@@ -221,10 +243,11 @@ class Lidar():
         return (x,y)
 
 
+
 if __name__ == "__main__":
     #COM4 was used on my computer, this will change based on
     #your setup and whether you're on Windows/Mac/Linux
-    port = 20
+    port = 3
     ser = serial.Serial(port, 115200, timeout = 5)
     ser.setDTR(False)
     print ser.name

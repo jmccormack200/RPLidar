@@ -137,7 +137,7 @@ class Lidar():
 ################################
 
     def getPoints(self,port,polar=True):
-    	UDP_IP = "127.0.0.1"
+        UDP_IP = "127.0.0.1"
         UDP_PORT = 8051
 
         line = ""
@@ -156,6 +156,7 @@ class Lidar():
                         packet = str((self.id, point))
                         if (point[1] >= 10000):
                             break
+                        #If having issues, uncomment below line to see what is being sent
                         #print packet
                     else:
                         packet = str((self.id, self.point_XY(line)))
@@ -245,9 +246,9 @@ class Lidar():
 
 
 if __name__ == "__main__":
-    #COM4 was used on my computer, this will change based on
+    #COM21 was used on my computer, this will change based on
     #your setup and whether you're on Windows/Mac/Linux
-    port = 3
+    port = 20
     ser = serial.Serial(port, 115200, timeout = 5)
     ser.setDTR(False)
     print ser.name
