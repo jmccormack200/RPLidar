@@ -2,7 +2,7 @@ import socket
 
 UDP_IP = "192.168.0.111"
 UDP_PORT = 2390
-MESSAGE = "1"
+MESSAGE = "Hello, World"
 
 print "UDP target IP: ", UDP_IP
 print "UDP target Port: ", UDP_PORT
