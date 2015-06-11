@@ -154,10 +154,11 @@ class Lidar():
                     if polar == True:
                         point = self.point_Polar(line)
                         packet = str((self.id, point))
-                        if (point[1] >= 10000):
-                            break
+                       #if (point[1] >= 10000):
+                       #     break
                         #If having issues, uncomment below line to see what is being sent
-                        #print packet
+			if (point[0] > 230 and point[0] < 275):
+				print packet
                     else:
                         packet = str((self.id, self.point_XY(line)))
 
