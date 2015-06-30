@@ -16,5 +16,5 @@ will require some tweaking on your part to get working (basically changing port/
 
 The two main files to use in this folder are:
 
--UDPLinux.py - for linux computers
--UDPLidar.py - for windows machines
+- UDPLinux.py - for linux computers
+- UDPLidar.py - for windows machines
