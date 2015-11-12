@@ -4,7 +4,8 @@
 
 The basic file just opens the Lidar and starts printing out to the command line. 
 Unfortunately, this does not yet have all the error correction necessary. 
-I should have time shortly to fix the problem.
+Where possible, LidarPrint.py should be used to test your setup, then follow
+the instructions in the UDP section to actually use it. 
 
 ##UDP
 
@@ -16,8 +17,8 @@ will require some tweaking on your part to get working (basically changing port/
 
 The two main files to use in this folder are:
 
-- UDPLinux.py - for linux computers
-- UDPLidar.py - for windows machines
+- UDPLinux.py - for Linux computers
+- UDPLidar.py - for Windows machines
 
 ##Firebase
 
@@ -39,3 +40,8 @@ A brief look at how to send data as JSON in preparation for UDP.
 
 This was an attempt to practice how to use threads before I integrated them into the program. 
 This is not a stand alone program.
+
+## ZMQ
+
+ZeroMQ was used to try to create a queue to store the Lidar data. This ended up being better
+to implement in another part of the project. It is left here only for reference. 
