@@ -18,3 +18,24 @@ The two main files to use in this folder are:
 
 - UDPLinux.py - for linux computers
 - UDPLidar.py - for windows machines
+
+##Firebase
+
+This was a brief test to see if I could use the Firebase platform to run the program.
+It should still work but not at the speed we were looking for. 
+This is left just in case someone needs to use it. If it is is something you need
+feel free to reach out to me and I will look into getting it working again.
+
+##Graph Tests
+
+This was using some quick LIDAR scans with matplotlib to see what they
+would look like. It doesnt add any functionality and was left here just in case I needed it.
+
+## JSON
+
+A brief look at how to send data as JSON in preparation for UDP. 
+
+## Thread Tests
+
+This was an attempt to practice how to use threads before I integrated them into the program. 
+This is not a stand alone program.
