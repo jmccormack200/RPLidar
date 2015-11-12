@@ -19,6 +19,7 @@ The two main files to use in this folder are:
 
 - UDPLinux.py - for Linux computers
 - UDPLidar.py - for Windows machines
+- UDPLidarSingleFrame.py - To test one single run of the LIDAR
 
 ##Firebase
 
